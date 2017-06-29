@@ -3,6 +3,7 @@ package controllers
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
+
 /**
   * Created by raru on 2017/06/29.
   */
