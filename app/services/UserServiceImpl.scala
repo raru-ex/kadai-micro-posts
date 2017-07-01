@@ -1,9 +1,10 @@
 package services
 
 import javax.inject.Singleton
-
+import jp.t2v.lab.play2.pager.scalikejdbc._ // 明示的にインポートする
+import jp.t2v.lab.play2.pager.{ Pager, SearchResult }
 import models.User
-import scalikejdbc.{ AutoSession, DBSession }
+import scalikejdbc.DBSession
 
 import scala.util.Try
 
@@ -21,8 +22,15 @@ class UserServiceImpl extends UserService {
     User.where('email -> email).apply().headOption
   }
 
-  override def findAll(implicit dbSession: DBSession): Try[List[User]] = Try {
-    User.findAll()
+  override def findAll(pager: Pager[User])(implicit dbSession: DBSession): Try[SearchResult[User]] = Try {
+    val size = User.countAllModels()
+    SearchResult(pager, size) { pager =>
+      User.findAllWithLimitOffset(
+        pager.limit,
+        pager.offset,
+        pager.allSorters.map(_.toSQLSyntax(User.defaultAlias))
+      )
+    }
   }
 
   override def findById(id: Long)(implicit dbSession: DBSession): Try[Option[User]] = Try {

@@ -5,6 +5,7 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import services.UserService
 import jp.t2v.lab.play2.auth.test.Helpers._
+import jp.t2v.lab.play2.pager.Pager
 
 /**
   * Created by raru on 2017/07/01.
@@ -19,7 +20,7 @@ class UsersControllerSpec extends PlayFunSpec with GuiceOneAppPerSuite {
     describe("route of UsersController#index") {
       it("should be valid") {
         val result = route(app,
-                           addCsrfToken(FakeRequest(GET, routes.UsersController.index().toString))
+                           addCsrfToken(FakeRequest(GET, routes.UsersController.index(Pager.default).toString))
                              .withLoggedIn(Config)("test@test.com")).get
         status(result) mustBe OK
       }
