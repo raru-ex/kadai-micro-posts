@@ -11,7 +11,7 @@ import services.UserService
   */
 class HomeControllerSpec extends PlayFunSpec with GuiceOneAppPerSuite {
 
-  object Config extends AuthConfigSupport{
+  object Config extends AuthConfigSupport {
     override val userService: UserService = app.injector.instanceOf[UserService]
   }
 
