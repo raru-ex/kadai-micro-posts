@@ -8,7 +8,7 @@ import models.{ MicroPost, User }
 import play.api.Logger
 import play.api.i18n.{ I18nSupport, Messages, MessagesApi }
 import play.api.mvc._
-import services.{ MicroPostService, UserFollowService, UserService }
+import services.{ FavoriteService, MicroPostService, UserFollowService, UserService }
 
 /**
   * Created by raru on 2017/07/01.
@@ -17,6 +17,7 @@ import services.{ MicroPostService, UserFollowService, UserService }
 class UsersController @Inject()(val userService: UserService,
                                 val microPostService: MicroPostService,
                                 val userFollowService: UserFollowService,
+                                val favoriteService: FavoriteService,
                                 val messagesApi: MessagesApi)
     extends Controller
     with I18nSupport
@@ -43,17 +44,21 @@ class UsersController @Inject()(val userService: UserService,
     val triedUserFollows    = userFollowService.findById(loggedIn.id.get)
     val pager               = createPager[MicroPost](page)
     val triedMicroPosts     = microPostService.findByUserId(pager, userId)
+    val triedFavoritePosts  = favoriteService.findByUserId(userId)
     val triedFollowingsSize = userFollowService.countByUserId(userId)
     val triedFollowersSize  = userFollowService.countByFollowId(userId)
     (for {
       userOpt        <- triedUserOpt
       userFollows    <- triedUserFollows
       microPosts     <- triedMicroPosts
+      favoritePosts  <- triedFavoritePosts
       followingsSize <- triedFollowingsSize
       followersSize  <- triedFollowersSize
     } yield {
       userOpt.map { user =>
-        Ok(views.html.users.show(loggedIn, user, userFollows, microPosts, followingsSize, followersSize))
+        Ok(
+          views.html.users.show(loggedIn, user, userFollows, microPosts, favoritePosts, followingsSize, followersSize)
+        )
       }.get
     }).recover {
         case e: Exception =>

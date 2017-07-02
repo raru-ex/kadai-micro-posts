@@ -17,4 +17,7 @@ POST        /users/:userId/unfollow          controllers.UserFollowController.un
 POST        /posts                   controllers.PostController.post(pager: Pager[MicroPost])
 POST        /posts/:id/delete        controllers.PostController.delete(id: Long, pager: Pager[MicroPost])
 
+POST        /posts/:microPostId/favorite            controllers.FavoriteController.favorite(microPostId: Long)
+POST        /posts/:microPostId/removefavorite      controllers.FavoriteController.remove(microPostId: Long)
+
 GET     /assets/*file               controllers.Assets.versioned(path="/public", file: Asset)

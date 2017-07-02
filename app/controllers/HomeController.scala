@@ -4,13 +4,13 @@ import javax.inject._
 
 import jp.t2v.lab.play2.auth.OptionalAuthElement
 import jp.t2v.lab.play2.pager.{ Pager, SearchResult }
-import models.MicroPost
+import models.{ Favorite, MicroPost }
 import play.api.Logger
 import play.api.data.Form
 import play.api.data.Forms._
 import play.api.i18n.{ I18nSupport, Messages, MessagesApi }
 import play.api.mvc._
-import services.{ MicroPostService, UserService }
+import services.{ FavoriteService, MicroPostService, UserService }
 
 /**
   * This controller creates an `Action` to handle HTTP requests to the
@@ -19,6 +19,7 @@ import services.{ MicroPostService, UserService }
 @Singleton
 class HomeController @Inject()(val userService: UserService,
                                val microPostService: MicroPostService,
+                               val favoriteService: FavoriteService,
                                val messagesApi: MessagesApi)
     extends Controller
     with I18nSupport
@@ -33,10 +34,11 @@ class HomeController @Inject()(val userService: UserService,
     val userOpt = loggedIn
     userOpt
       .map { user =>
+        val favorites = favoriteService.findByUserId(user.id.get).getOrElse(List.empty[Favorite])
         microPostService
           .findAllByWithLimitOffset(pager, user.id.get)
           .map { searchResult =>
-            Ok(views.html.index(userOpt, postForm, searchResult))
+            Ok(views.html.index(userOpt, postForm, searchResult, favorites))
           }
           .recover {
             case e: Exception =>
@@ -47,7 +49,9 @@ class HomeController @Inject()(val userService: UserService,
           .getOrElse(InternalServerError(Messages("InternalError")))
       }
       .getOrElse(
-        Ok(views.html.index(userOpt, postForm, SearchResult(pager, 0)(_ => Seq.empty[MicroPost])))
+        Ok(
+          views.html.index(userOpt, postForm, SearchResult(pager, 0)(_ => Seq.empty[MicroPost]), List.empty[Favorite])
+        )
       )
   }
 
