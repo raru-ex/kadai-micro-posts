@@ -1,5 +1,5 @@
 CREATE TABLE favorites (
-  id        BIGSERIAL     AUTO_INCREMENT,
+  id        BIGSERIAL     NOT NULL,
   user_id   BIGINT        NOT NULL,
   micro_post_id BIGINT    NOT NULL,
   create_at TIMESTAMP     NOT NULL DEFAULT CURRENT_TIMESTAMP,
