@@ -51,7 +51,8 @@ libraryDependencies ++= Seq(
   "jp.t2v"                 %% "play2-auth"                   % "0.14.2",
   "jp.t2v"                 %% "play2-auth-test"              % "0.14.2" % Test,
   "jp.t2v"                 %% "play2-pager"                  % "0.1.0", // 追加
-  "jp.t2v"                 %% "play2-pager-scalikejdbc"      % "0.1.0" // 追加
+  "jp.t2v"                 %% "play2-pager-scalikejdbc"      % "0.1.0", // 追加
+  "org.postgresql"         % "postgresql"                    % "42.0.0"
 )
 
 // Adds additional packages into Twirl
@@ -83,3 +84,15 @@ flywayDriver := envConfig.value.getString("jdbcDriver")
 flywayUrl := envConfig.value.getString("jdbcUrl")
 flywayUser := envConfig.value.getString("jdbcUserName")
 flywayPassword := envConfig.value.getString("jdbcPassword")
+
+herokuJdkVersion in Compile := "1.8"
+
+herokuAppName in Compile := "raru-micro-posts" // ご自身のアプリケーション名を指定してください
+
+herokuProcessTypes in Compile := Map(
+  "web" -> s"target/universal/stage/bin/${normalizedName.value} -Dhttp.port=$$PORT -Dconfig.resource=prod/application.conf -Ddb.default.migration.auto=true"
+)
+
+herokuConfigVars in Compile := Map(
+  "JAVA_OPTS" -> "-Xmx512m -Xms512m"
+)
