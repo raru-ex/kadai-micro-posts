@@ -27,15 +27,31 @@ object Favorite extends SkinnyCRUDMapper[Favorite] {
     fk = "userId",
     on = sqls.eq(defaultAlias.userId, u.id),
     merge = (uf, f) => uf.copy(user = f)
+  ).includes[User](
+    merge = (favorites, users) =>
+      favorites.map { fav =>
+        users
+          .find(user => fav.microPost.exists(_.id == user.id))
+          .map(user => fav.copy(user = Some(user)))
+          .getOrElse(fav)
+    }
   )
 
-  lazy val mp = MicroPost.createAlias("mp")
+  lazy val m = MicroPost.createAlias("m")
 
   lazy val microPostRef = belongsToWithAliasAndFkAndJoinCondition[MicroPost](
-    right = MicroPost -> mp,
+    right = MicroPost -> m,
     fk = "microPostId",
-    on = sqls.eq(defaultAlias.microPostId, mp.id),
+    on = sqls.eq(defaultAlias.microPostId, m.id),
     merge = (uf, f) => uf.copy(microPost = f)
+  ).includes[MicroPost](
+    merge = (favorites, microposts) =>
+      favorites.map { fav =>
+        microposts
+          .find(mp => fav.microPost.exists(_.id == mp.id))
+          .map(mp => fav.copy(microPost = Some(mp)))
+          .getOrElse(fav)
+    }
   )
 
   lazy val allAssociations: CRUDFeatureWithId[Long, Favorite] = joins(userRef, microPostRef)

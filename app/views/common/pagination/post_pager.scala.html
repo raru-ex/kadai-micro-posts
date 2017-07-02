@@ -1,0 +1,12 @@
+@(microPosts: SearchResult[MicroPost])(implicit messages: Messages, request: RequestHeader)
+
+@pagination(
+  microPosts,
+  routes.HomeController.index,
+  window = 3,
+  firstLabel = Html("First"),
+  previousLabel = Html("Prev"),
+  truncateLabel = Html("..snip.."),
+  nextLabel = Html("Next"),
+  lastLabel = Html("Last")
+)

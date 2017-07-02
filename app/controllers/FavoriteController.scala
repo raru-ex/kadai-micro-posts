@@ -5,7 +5,7 @@ import javax.inject._
 
 import jp.t2v.lab.play2.auth.AuthenticationElement
 import jp.t2v.lab.play2.pager.Pager
-import models.Favorite
+import models.{ Favorite, MicroPost }
 import play.api.Logger
 import play.api.i18n.{ I18nSupport, Messages, MessagesApi }
 import play.api.mvc.{ Action, AnyContent, Controller }
@@ -23,6 +23,26 @@ class FavoriteController @Inject()(val userFollowService: UserFollowService,
     with I18nSupport
     with AuthConfigSupport
     with AuthenticationElement {
+
+  def index(pager: Pager[MicroPost]): Action[AnyContent] = StackAction { implicit request =>
+    val favoritePosts = favoriteService.findPagedMicroPostsByUserId(pager, loggedIn.id.get)
+
+    favoritePosts
+      .map { searchResult =>
+        Ok(
+          views.html.favorite.index(loggedIn,
+                                    searchResult,
+                                    favoriteService.findByUserId(loggedIn.id.get).getOrElse(List.empty[Favorite]))
+        )
+      }
+      .recover {
+        case e: Exception =>
+          Logger.error(s"occurred error", e)
+          Redirect(routes.HomeController.index(Pager.default))
+            .flashing("failure" -> Messages("InternalError"))
+      }
+      .getOrElse(InternalServerError(Messages("InternalError")))
+  }
 
   def favorite(microPostId: Long): Action[AnyContent] = StackAction { implicit request =>
     val currentUser = loggedIn

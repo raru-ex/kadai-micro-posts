@@ -17,16 +17,16 @@ trait FavoriteService {
   def findByUserId(userId: Long)(implicit dbSession: DBSession = AutoSession): Try[List[Favorite]]
 
   def findPagedMicroPostsByUserId(pager: Pager[MicroPost], userId: Long)(
-      implicit dbSession: DBSession
+      implicit dbSession: DBSession = AutoSession
   ): Try[SearchResult[MicroPost]]
 
   def findPagedFavoriteUsersByMicroPostId(pager: Pager[User], microPostId: Long)(
-      implicit dbSession: DBSession
+      implicit dbSession: DBSession = AutoSession
   ): Try[SearchResult[User]]
 
   def countByUserId(userId: Long)(implicit dbSession: DBSession = AutoSession): Try[Long]
 
-  def countByMicroPostId(microPostId: Long)(implicit dbSession: DBSession): Try[Long]
+  def countByMicroPostId(microPostId: Long)(implicit dbSession: DBSession = AutoSession): Try[Long]
 
   def deleteBy(userId: Long, microPostId: Long)(implicit dbSession: DBSession = AutoSession): Try[Int]
 }

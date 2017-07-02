@@ -51,7 +51,8 @@ class FavoriteServiceImpl extends FavoriteService {
   ): Try[SearchResult[MicroPost]] = {
     countByUserId(userId).map { size =>
       SearchResult(pager, size) { pager =>
-        Favorite.allAssociations
+        Favorite
+          .includes(Favorite.microPostRef)
           .findAllByWithLimitOffset(
             sqls.eq(Favorite.defaultAlias.userId, userId),
             pager.limit,
@@ -68,7 +69,8 @@ class FavoriteServiceImpl extends FavoriteService {
   ): Try[SearchResult[User]] = {
     countByMicroPostId(microPostId).map { size =>
       SearchResult(pager, size) { pager =>
-        Favorite.allAssociations
+        Favorite
+          .includes(Favorite.userRef)
           .findAllByWithLimitOffset(
             sqls.eq(Favorite.defaultAlias.microPostId, microPostId),
             pager.limit,
